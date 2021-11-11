@@ -1,8 +1,4 @@
-import java.sql.DriverManager;
-import java.sql.Connection;
-import java.sql.Statement;
-import java.sql.ResultSet;
-import java.sql.SavePoint;
+import java.sql.*;
 import java.util.Date;
 import java.text.SimpleDateFormat;
 import java.util.Scanner;
@@ -14,14 +10,7 @@ import java.util.Scanner;
 
 public class main {
 
-    void MostrarMenuPrincipal(){
-        System.out.println("\t********MENU********\n");
-        System.out.println("1. Borrado y creación de tablas e inserción de datos en la tabla Stock.");
-        System.out.println("2. Dar de alta nuevo pedido.");
-        System.out.println("3. Mostrar el contenido de las tablas.");
-        System.out.println("4. Salir del programa y cerrar la conexión a la BD.");
-        System.out.println("\t**********************");
-    }
+
 
     public static void main(String args[]){
         int opcionMenu = -1;
@@ -36,14 +25,14 @@ public class main {
         }
         while (opcionMenu != 4) {
             
-            MostrarMenuPrincipal();
+            bd.MostrarMenuPrincipal();
             opcionMenu = scanner.nextInt();
 
             switch (opcionMenu) {
                 case 1:
                     break;
                 case 2:
-                    bd.getConnection().
+                    bd.getConnection();
                     System.out.println("Introduzca los datos del pedido: ");
                     System.out.println("Codigo del pedido: ");
                     

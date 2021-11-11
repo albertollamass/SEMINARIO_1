@@ -1,8 +1,4 @@
-import java.sql.DriverManager;
-import java.sql.Connection;
-import java.sql.Statement;
-import java.sql.ResultSet;
-import java.sql.SavePoint;
+import java.sql.*;
 import java.util.Date;
 import java.text.SimpleDateFormat;
 import java.util.Scanner;
@@ -16,8 +12,6 @@ public class BaseDatos {
         System.out.println("Conectándose a la BD...\n\n");
         try
         {
-            //Se carga el driver JDBC
-            DriverManager.registerDriver( new oracle.jdbc.driver.OracleDriver() );
             //nombre del servidor
             String nombre_servidor = "oracle0.ugr.es";
             //numero del puerto
@@ -33,18 +27,28 @@ public class BaseDatos {
     }
 
     boolean TableExist() {
+        boolean res = false;
+        try{
         Statement sentencia = conexion.createStatement();
         ResultSet resultado = sentencia.executeQuery("SELECT * FROM *");
         
         if (resultado.getFetchSize() == 0)
-            return false;
+            res  = false;
         else
-            return true;
+            res = true;
+        }catch( Exception e ){
+            e.printStackTrace();
+        }
+        return res;
     }
 
 
     void cerrarConexion() {
+        try{
         conexion.close();
+        }catch( Exception e ){
+            e.printStackTrace();
+        }
     }
 
     void crearTablas() throws SQLException{
@@ -109,15 +113,15 @@ public class BaseDatos {
             ResultSet resultado_Detalle_Pedido = sentencia.executeQuery( "SELECT * FROM Detalle-Pedido" );
             while ( resultado_Stock.next() )
                 {
-                    System.out.println ( resultado.getInt( 1 ) + "\t" + resultado.getInt( 2 ) );
+                    System.out.println ( resultado_Stock.getInt( 1 ) + "\t" + resultado_Stock.getInt( 2 ) );
                 }
             while ( resultado_Pedido.next() )
                 {
-                    System.out.println ( resultado.getInt( 1 ) + "\t" + resultado.getInt( 2 ) + "\t" + resultado.getString( 3 ) );
+                    System.out.println ( resultado_Pedido.getInt( 1 ) + "\t" + resultado_Pedido.getInt( 2 ) + "\t" + resultado_Pedido.getString( 3 ) );
                 }    
             while ( resultado_Detalle_Pedido.next() )
                 {
-                    System.out.println ( resultado.getInt( 1 ) + "\t" + resultado.getInt( 2 ) );
+                    System.out.println ( resultado_Detalle_Pedido.getInt( 1 ) + "\t" + resultado_Detalle_Pedido.getInt( 2 ) );
                 }
             sentencia.close();
         }catch( Exception e ){
@@ -127,32 +131,37 @@ public class BaseDatos {
     }
     
     void darDeAlta(int Cpedido, int Ccliente, Date fechaPedido) {
+        try{
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
         Statement sentencia = conexion.createStatement();
         sentencia.executeQuery( "INSERT INTO PEDIDO VALUES (" + Integer.toString(Cpedido) + ", " + Integer.toString(Ccliente) + ", " + formatter.format(fechaPedido) + ")" );
         int opcion = 0;
         Scanner scanner = new Scanner(System.in);
-        SavePoint puntoSeguro = conexion.setSavepoint("Pedido insertado");
-
+        Savepoint puntoSeguro = conexion.setSavepoint("Pedido insertado");
         while (opcion != 4) {
             MostrarMenuDarDeAlta();
             opcion = scanner.nextInt();
 
             switch (opcion) {
                 case 1:
-                    System.out.println("Introduzca el codigo del articulo: ")
-                    int codigoArticulo = Scanner.nextInt();
-                    System.out.println("Introduzca la cantidad: ")
-                    int cantidadArticulo = Scanner.nextInt();
+                    System.out.println("Introduzca el codigo del articulo: ");
+                    int codigoArticulo = scanner.nextInt();
+                    System.out.println("Introduzca la cantidad: ");
+                    int cantidadArticulo = scanner.nextInt();
                     
                     try (Statement stmt = conexion.createStatement()){
-                        int cantidadRes = stmt.executeQuery("SELECT CANTIDAD FROM STOCK WHERE Cproducto=" + Integer.toString(codigoArticulo))
-                        if(cantidadRes >= cantidadArticulo){
-                            cantidadRes -= cantidadArticulo;
+                        // ResultSet cantidadRes = stmt.executeQuery("SELECT CANTIDAD FROM STOCK WHERE Cproducto=" + Integer.toString(codigoArticulo));
+                        int cantidadRest =0;
+                        // while ( cantidadRes.next() )
+                        //     {
+                        //        cantidadRest++;
+                        //     }
+                        if(cantidadRest >= cantidadArticulo){
+                            cantidadRest -= cantidadArticulo;
                             stmt.executeUpdate("insert into Detalle-Pedido values(" + Integer.toString(Cpedido) + ", " + Integer.toString(codigoArticulo) + ", " + Integer.toString(cantidadArticulo) + ")");
-                            stmt.executeUpdate("update Stock set Cantidad=" + Integer.toString(cantidadRes) + " WHERE Cproducto=" + Integer.toString(codigoArticulo));         
+                            stmt.executeUpdate("update Stock set Cantidad=" + Integer.toString(cantidadRest) + " WHERE Cproducto=" + Integer.toString(codigoArticulo));         
                         } else {
-                            System.out.println("\nLa cantidad solicitada es mayor al stock restante, quedan " + Integer.toString(cantidadRes) + " en stock del producto seleccionado." );
+                            System.out.println("\nLa cantidad solicitada es mayor al stock restante, quedan " + Integer.toString(cantidadRest) + " en stock del producto seleccionado." );
                         }
                         
                     } catch (SQLException e) {
@@ -191,7 +200,19 @@ public class BaseDatos {
                     break;
             }
         }
+        }catch( Exception e ){
+            e.printStackTrace();
+        }
         
+    }
+
+    public void MostrarMenuPrincipal(){
+        System.out.println("\t********MENU********\n");
+        System.out.println("1. Borrado y creación de tablas e inserción de datos en la tabla Stock.");
+        System.out.println("2. Dar de alta nuevo pedido.");
+        System.out.println("3. Mostrar el contenido de las tablas.");
+        System.out.println("4. Salir del programa y cerrar la conexión a la BD.");
+        System.out.println("\t**********************");
     }
     
     private void MostrarMenuDarDeAlta(){
@@ -204,7 +225,7 @@ public class BaseDatos {
     }
     
     Connection getConnection(){
-        return this->conexion;
+        return this.conexion;
     }
 
 }
