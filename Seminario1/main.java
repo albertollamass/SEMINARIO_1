@@ -23,11 +23,12 @@ public class main {
         }
 
         while (opcionMenu != 4) {
-            
+            Savepoint opcion3 = bd.getConnection().setSavepoint(); 
             bd.MostrarMenuPrincipal();
             opcionMenu = scanner.nextInt();
 
             switch (opcionMenu) {
+
                 case 1:
                     bd.eliminarTablas();
 
@@ -48,13 +49,15 @@ public class main {
                     System.out.println("Codigo del cliente: ");
                     int Ccliente = scanner.nextInt();
                     System.out.println("Fecha del pedido (dd/mm/yyyy): ");
+                    scanner.nextLine();
                     String fecha = scanner.nextLine();
                     
-                    bd.darDeAlta(Cpedido, Ccliente, fecha);
+                    bd.darDeAlta(Cpedido, Ccliente, fecha, opcion3);
                 
                     break;
                 case 3:
                     System.out.println("\n");
+
                     bd.mostrarTablas();
                     break;
                 case 4:

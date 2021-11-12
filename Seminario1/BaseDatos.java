@@ -165,17 +165,20 @@ public class BaseDatos {
             ResultSet resultado_Stock = sentencia_Stock.executeQuery( "SELECT * FROM Stock" );
             ResultSet resultado_Pedido = sentencia_Pedido.executeQuery( "SELECT * FROM Pedido" );
             ResultSet resultado_Detalle_Pedido = sentencia_Detalle_Pedido.executeQuery( "SELECT * FROM Detalle_Pedido" );
+            System.out.println ( "Mostrando la tabla Stock \n" );
             while ( resultado_Stock.next() )
                 {
                     System.out.println ( resultado_Stock.getInt( 1 ) + "\t" + resultado_Stock.getInt( 2 ) );
                 }
+            System.out.println ( "\nMostrando la tabla Pedido \n" );
             while ( resultado_Pedido.next() )
                 {
                     System.out.println ( resultado_Pedido.getInt( 1 ) + "\t" + resultado_Pedido.getInt( 2 ) + "\t" + resultado_Pedido.getString( 3 ) );
                 }    
+            System.out.println ( "\nMostrando la tabla Detalle_Pedido \n" );
             while ( resultado_Detalle_Pedido.next() )
                 {
-                    System.out.println ( resultado_Detalle_Pedido.getInt( 1 ) + "\t" + resultado_Detalle_Pedido.getInt( 2 ) );
+                    System.out.println ( resultado_Detalle_Pedido.getInt( 1 ) + "\t" + resultado_Detalle_Pedido.getInt( 2 ) + "\t" + resultado_Detalle_Pedido.getInt( 3 ));
                 }
             sentencia_Stock.close();
             sentencia_Pedido.close();
@@ -186,14 +189,90 @@ public class BaseDatos {
         
     }
     
-    void darDeAlta(int Cpedido, int Ccliente, String fechaPedido) {
+    // void darDeAlta(int Cpedido, int Ccliente, String fechaPedido) {
+    //     try{
+    //         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+    //         Statement sentencia = conexion.createStatement();
+    //         sentencia.executeQuery( "INSERT INTO PEDIDO VALUES (" + Integer.toString(Cpedido) + ", " + Integer.toString(Ccliente) + ", " + formatter.format(fechaPedido) + ")" );
+    //         int opcion = 0;
+    //         Scanner scanner = new Scanner(System.in);
+    //         Savepoint puntoSeguro = conexion.setSavepoint("Pedido insertado");
+    //         while (opcion != 4) {
+    //             MostrarMenuDarDeAlta();
+    //             opcion = scanner.nextInt();
+
+    //             switch (opcion) {
+    //                 case 1:
+    //                     System.out.println("Introduzca el codigo del articulo: ");
+    //                     int codigoArticulo = scanner.nextInt();
+    //                     System.out.println("Introduzca la cantidad: ");
+    //                     int cantidadArticulo = scanner.nextInt();
+                        
+    //                     try (Statement stmt = conexion.createStatement()){
+    //                         // ResultSet cantidadRes = stmt.executeQuery("SELECT CANTIDAD FROM STOCK WHERE Cproducto=" + Integer.toString(codigoArticulo));
+    //                         int cantidadRest =0;
+    //                         // while ( cantidadRes.next() )
+    //                         //     {
+    //                         //        cantidadRest++;
+    //                         //     }
+    //                         if(cantidadRest >= cantidadArticulo){
+    //                             cantidadRest -= cantidadArticulo;
+    //                             stmt.executeUpdate("insert into Detalle-Pedido values(" + Integer.toString(Cpedido) + ", " + Integer.toString(codigoArticulo) + ", " + Integer.toString(cantidadArticulo) + ")");
+    //                             stmt.executeUpdate("update Stock set Cantidad=" + Integer.toString(cantidadRest) + " WHERE Cproducto=" + Integer.toString(codigoArticulo));         
+    //                         } else {
+    //                             System.out.println("\nLa cantidad solicitada es mayor al stock restante, quedan " + Integer.toString(cantidadRest) + " en stock del producto seleccionado." );
+    //                         }
+                            
+    //                     } catch (SQLException e) {
+    //                         System.out.println(e);
+    //                     }
+    //                     break;
+                    
+    //                 case 2:
+    //                     try {
+    //                         conexion.rollback(puntoSeguro);
+    //                     } catch (Exception e) {
+    //                         e.printStackTrace();
+    //                     }
+    //                     break;
+                    
+    //                 case 3:
+    //                     try {
+    //                         sentencia.close();
+    //                         conexion.rollback();
+    //                         opcion = 4;
+    //                     } catch ( Exception e ){
+    //                         e.printStackTrace();
+    //                     }
+    //                     break;
+
+    //                 case 4:
+    //                     try {
+    //                         sentencia.close();
+    //                         conexion.commit();
+    //                     } catch ( Exception e ){
+    //                         e.printStackTrace();
+    //                     }
+    //                     break;
+    //                 default:
+    //                     System.out.println("\nOpción no válida, por favor introduzca una de las opciones del menú.");
+    //                     break;
+    //             }
+    //         }
+    //     }catch( Exception e ){
+    //         e.printStackTrace();
+    //     }
+        
+    // }
+
+    void darDeAlta(int Cpedido, int Ccliente, String fechaPedido, Savepoint opcion3) {
         try{
-            SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
             Statement sentencia = conexion.createStatement();
-            sentencia.executeQuery( "INSERT INTO PEDIDO VALUES (" + Integer.toString(Cpedido) + ", " + Integer.toString(Ccliente) + ", " + formatter.format(fechaPedido) + ")" );
+            sentencia.executeQuery( "INSERT INTO PEDIDO VALUES (" + Integer.toString(Cpedido) + ", " + Integer.toString(Ccliente) + ", " + "to_Date('" + fechaPedido + "', 'dd/mm/yyyy'))" );
             int opcion = 0;
             Scanner scanner = new Scanner(System.in);
-            Savepoint puntoSeguro = conexion.setSavepoint("Pedido insertado");
+            conexion.setAutoCommit(false);
+            Savepoint puntoSeguro = conexion.setSavepoint();        //Pedido insertado
             while (opcion != 4) {
                 MostrarMenuDarDeAlta();
                 opcion = scanner.nextInt();
@@ -206,19 +285,21 @@ public class BaseDatos {
                         int cantidadArticulo = scanner.nextInt();
                         
                         try (Statement stmt = conexion.createStatement()){
-                            // ResultSet cantidadRes = stmt.executeQuery("SELECT CANTIDAD FROM STOCK WHERE Cproducto=" + Integer.toString(codigoArticulo));
+                             ResultSet cantidadRes = stmt.executeQuery("SELECT CANTIDAD FROM STOCK WHERE Cproducto=" + Integer.toString(codigoArticulo));
                             int cantidadRest =0;
-                            // while ( cantidadRes.next() )
-                            //     {
-                            //        cantidadRest++;
-                            //     }
+                             while ( cantidadRes.next() )
+                                {
+                                    cantidadRest = cantidadRes.getInt(1);
+                                }
+                            // cantidadRest = cantidadRes.getInt(1);
                             if(cantidadRest >= cantidadArticulo){
                                 cantidadRest -= cantidadArticulo;
-                                stmt.executeUpdate("insert into Detalle-Pedido values(" + Integer.toString(Cpedido) + ", " + Integer.toString(codigoArticulo) + ", " + Integer.toString(cantidadArticulo) + ")");
+                                stmt.executeUpdate("insert into Detalle_Pedido values(" + Integer.toString(Cpedido) + ", " + Integer.toString(codigoArticulo) + ", " + Integer.toString(cantidadArticulo) + ")");
                                 stmt.executeUpdate("update Stock set Cantidad=" + Integer.toString(cantidadRest) + " WHERE Cproducto=" + Integer.toString(codigoArticulo));         
                             } else {
                                 System.out.println("\nLa cantidad solicitada es mayor al stock restante, quedan " + Integer.toString(cantidadRest) + " en stock del producto seleccionado." );
                             }
+                            mostrarTablas();
                             
                         } catch (SQLException e) {
                             System.out.println(e);
@@ -228,6 +309,7 @@ public class BaseDatos {
                     case 2:
                         try {
                             conexion.rollback(puntoSeguro);
+                            mostrarTablas();
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -236,8 +318,9 @@ public class BaseDatos {
                     case 3:
                         try {
                             sentencia.close();
-                            conexion.rollback();
+                            conexion.rollback(opcion3);
                             opcion = 4;
+                            mostrarTablas();
                         } catch ( Exception e ){
                             e.printStackTrace();
                         }
@@ -261,6 +344,7 @@ public class BaseDatos {
         }
         
     }
+
 
     public void MostrarMenuPrincipal(){
         System.out.println("\n\t********MENU********");
