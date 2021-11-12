@@ -3,14 +3,11 @@ import java.util.Date;
 import java.text.SimpleDateFormat;
 import java.util.Scanner;
 
-
 //Para compilar
 //javac main.java BaseDatos.java
 //java -cp ojdbc8.jar:. main
 
 public class main {
-
-
 
     public static void main(String args[]){
         int opcionMenu = -1;
@@ -20,9 +17,11 @@ public class main {
         entrada = scanner.nextLine();
         
         BaseDatos bd = new BaseDatos(entrada);
+
         if (bd.getConnection() != null){
-            System.out.println("Conexion estacblecida.");
+            System.out.println("Conexion establecida.\n");
         }
+
         while (opcionMenu != 4) {
             
             bd.MostrarMenuPrincipal();
@@ -30,16 +29,32 @@ public class main {
 
             switch (opcionMenu) {
                 case 1:
+                    bd.eliminarTablas();
+
+                    try{
+                        Thread.sleep(2000);
+                    }catch(InterruptedException e ) {
+                    }
+
+                    System.out.println("\n\n");
+                    bd.crearTablas();
                     break;
+
                 case 2:
                     bd.getConnection();
                     System.out.println("Introduzca los datos del pedido: ");
                     System.out.println("Codigo del pedido: ");
+                    int Cpedido = scanner.nextInt();
+                    System.out.println("Codigo del cliente: ");
+                    int Ccliente = scanner.nextInt();
+                    System.out.println("Fecha del pedido (dd/mm/yyyy): ");
+                    String fecha = scanner.nextLine();
                     
-
-
+                    bd.darDeAlta(Cpedido, Ccliente, fecha);
+                
                     break;
                 case 3:
+                    bd.mostrarTablas();
                     break;
                 case 4:
                     bd.cerrarConexion();

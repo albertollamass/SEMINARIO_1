@@ -45,30 +45,77 @@ public class BaseDatos {
 
     void cerrarConexion() {
         try{
-        conexion.close();
+            conexion.close();
         }catch( Exception e ){
             e.printStackTrace();
         }
     }
+    void eliminarTablas(){
+        String consulta ="";
+        Statement stmt;
+        try{
+            consulta = "DELETE Detalle_pedido";
+            stmt  = conexion.createStatement();
+            stmt.executeUpdate(consulta);
 
-    void crearTablas() throws SQLException{
+            consulta = "DROP TABLE Detalle_Pedido";
+            stmt  = conexion.createStatement();
+            stmt.executeUpdate(consulta);
+            System.out.println("Tabla Detalle_Pedido dropeada");
+
+        } catch(Exception e){
+            System.out.println("La tabla Detalle_Pedido no existia");
+        }
+
+        try{
+            consulta = "DELETE Pedido";
+            stmt  = conexion.createStatement();
+            stmt.executeUpdate(consulta);
+
+            consulta = "DROP TABLE Pedido";
+            stmt  = conexion.createStatement();
+            stmt.executeUpdate(consulta);
+            System.out.println("Tabla Pedido eliminada");
+
+        } catch(Exception e){
+            System.out.println("La tabla Pedido no exxistía");
+        }
+
+        try{
+            consulta = "DELETE Stock";
+            stmt  = conexion.createStatement();
+            stmt.executeUpdate(consulta);
+
+            consulta = "DROP TABLE Stock";
+            stmt  = conexion.createStatement();
+            stmt.executeUpdate(consulta);
+            System.out.println("Tabla Stock eliminada");
+
+        } catch(Exception e){
+            System.out.println("La tabla Stock no existia");
+        }
+    }
+
+    void crearTablas(){
         String formatoStock =
-        "create table Stock " + "(Cproducto integer NOT NULL PRIMARY KEY, " +
-        "Cantidad integer NOT NULL)";
+        "create table Stock " + "(Cproducto INT NOT NULL PRIMARY KEY, " +
+        "Cantidad INT NOT NULL)";
         
         String formatoPedido =
-        "create table Pedido " + "(Cpedido integer NOT NULL PRIMARY KEY, " + 
-        "Ccliente integer NOT NULL, " + "Fecha-Pedido date NOT NULL)";
+        "create table Pedido " + "(Cpedido INT NOT NULL PRIMARY KEY, " + 
+        "Ccliente INT NOT NULL, " + "Fecha_Pedido DATE NOT NULL)";
         
-        String formatoFechaPedido =
-        "create table Fecha-Pedido " + "(Cpedido integer NOT NULL PRIMARY KEY, " +
-        "Cproducto integer NOT NULL PRIMARY KEY, " + "Cantidad integer NOT NULL, " +
-        "FOREIGN KEY(Cpedido REFERENCES Pedido(Cpedido), " + 
-        "FOREIGN KEY(Cproducto REFERENCES Stock(Cproducto)";
+        String formatoDetallePedido =
+        "create table Detalle_Pedido " + "(Cpedido INT NOT NULL, " +
+        "Cproducto INT NOT NULL, " + "Cantidad INT NOT NULL, " +
+        "FOREIGN KEY(Cpedido) REFERENCES Pedido(Cpedido), " + 
+        "FOREIGN KEY(Cproducto) REFERENCES Stock(Cproducto), " + 
+        "PRIMARY KEY (Cpedido, Cproducto))";
 
         //Crear tabla Stock
         try (Statement stmt = conexion.createStatement()){
             stmt.executeUpdate(formatoStock);
+            System.out.println("Tabla Stock creada.");
         } catch (SQLException e) {
             System.out.println("Problema creando Stock \n " + e);
         }    
@@ -85,6 +132,8 @@ public class BaseDatos {
             stmt.executeUpdate("insert into stock values(8, 150)");
             stmt.executeUpdate("insert into stock values(9, 90)");
             stmt.executeUpdate("insert into stock values(10, 97)");
+            System.out.println("10 tuplas insertadas en Stock.");
+
         } catch (SQLException e) {
             System.out.println(e);
         }
@@ -92,15 +141,17 @@ public class BaseDatos {
         //Crear tabla Pedido
         try (Statement stmt = conexion.createStatement()){
             stmt.executeUpdate(formatoPedido);
+            System.out.println("Tabla Pedido creada.");
         } catch (SQLException e) {
             System.out.println("Problema creando Pedido \n " + e);
         }
         
-        //Crear tabla Fecha-Pedido
+        //Crear tabla Detalle-Pedido
         try (Statement stmt = conexion.createStatement()){
-            stmt.executeUpdate(formatoFechaPedido);
+            stmt.executeUpdate(formatoDetallePedido);
+            System.out.println("Tabla Detalle-Pedido creada.");
         } catch (SQLException e) {
-            System.out.println("Problema creando Fecha-Pedido \n " + e);
+            System.out.println("Problema creando Detalle-Pedido \n " + e);
         }
         
         
@@ -130,76 +181,76 @@ public class BaseDatos {
         
     }
     
-    void darDeAlta(int Cpedido, int Ccliente, Date fechaPedido) {
+    void darDeAlta(int Cpedido, int Ccliente, String fechaPedido) {
         try{
-        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
-        Statement sentencia = conexion.createStatement();
-        sentencia.executeQuery( "INSERT INTO PEDIDO VALUES (" + Integer.toString(Cpedido) + ", " + Integer.toString(Ccliente) + ", " + formatter.format(fechaPedido) + ")" );
-        int opcion = 0;
-        Scanner scanner = new Scanner(System.in);
-        Savepoint puntoSeguro = conexion.setSavepoint("Pedido insertado");
-        while (opcion != 4) {
-            MostrarMenuDarDeAlta();
-            opcion = scanner.nextInt();
+            SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+            Statement sentencia = conexion.createStatement();
+            sentencia.executeQuery( "INSERT INTO PEDIDO VALUES (" + Integer.toString(Cpedido) + ", " + Integer.toString(Ccliente) + ", " + formatter.format(fechaPedido) + ")" );
+            int opcion = 0;
+            Scanner scanner = new Scanner(System.in);
+            Savepoint puntoSeguro = conexion.setSavepoint("Pedido insertado");
+            while (opcion != 4) {
+                MostrarMenuDarDeAlta();
+                opcion = scanner.nextInt();
 
-            switch (opcion) {
-                case 1:
-                    System.out.println("Introduzca el codigo del articulo: ");
-                    int codigoArticulo = scanner.nextInt();
-                    System.out.println("Introduzca la cantidad: ");
-                    int cantidadArticulo = scanner.nextInt();
-                    
-                    try (Statement stmt = conexion.createStatement()){
-                        // ResultSet cantidadRes = stmt.executeQuery("SELECT CANTIDAD FROM STOCK WHERE Cproducto=" + Integer.toString(codigoArticulo));
-                        int cantidadRest =0;
-                        // while ( cantidadRes.next() )
-                        //     {
-                        //        cantidadRest++;
-                        //     }
-                        if(cantidadRest >= cantidadArticulo){
-                            cantidadRest -= cantidadArticulo;
-                            stmt.executeUpdate("insert into Detalle-Pedido values(" + Integer.toString(Cpedido) + ", " + Integer.toString(codigoArticulo) + ", " + Integer.toString(cantidadArticulo) + ")");
-                            stmt.executeUpdate("update Stock set Cantidad=" + Integer.toString(cantidadRest) + " WHERE Cproducto=" + Integer.toString(codigoArticulo));         
-                        } else {
-                            System.out.println("\nLa cantidad solicitada es mayor al stock restante, quedan " + Integer.toString(cantidadRest) + " en stock del producto seleccionado." );
-                        }
+                switch (opcion) {
+                    case 1:
+                        System.out.println("Introduzca el codigo del articulo: ");
+                        int codigoArticulo = scanner.nextInt();
+                        System.out.println("Introduzca la cantidad: ");
+                        int cantidadArticulo = scanner.nextInt();
                         
-                    } catch (SQLException e) {
-                        System.out.println(e);
-                    }
-                    break;
-                
-                case 2:
-                    try {
-                        conexion.rollback(puntoSeguro);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    break;
-                
-                case 3:
-                    try {
-                        sentencia.close();
-                        conexion.rollback();
-                        opcion = 4;
-                    } catch ( Exception e ){
-                        e.printStackTrace();
-                    }
-                    break;
+                        try (Statement stmt = conexion.createStatement()){
+                            // ResultSet cantidadRes = stmt.executeQuery("SELECT CANTIDAD FROM STOCK WHERE Cproducto=" + Integer.toString(codigoArticulo));
+                            int cantidadRest =0;
+                            // while ( cantidadRes.next() )
+                            //     {
+                            //        cantidadRest++;
+                            //     }
+                            if(cantidadRest >= cantidadArticulo){
+                                cantidadRest -= cantidadArticulo;
+                                stmt.executeUpdate("insert into Detalle-Pedido values(" + Integer.toString(Cpedido) + ", " + Integer.toString(codigoArticulo) + ", " + Integer.toString(cantidadArticulo) + ")");
+                                stmt.executeUpdate("update Stock set Cantidad=" + Integer.toString(cantidadRest) + " WHERE Cproducto=" + Integer.toString(codigoArticulo));         
+                            } else {
+                                System.out.println("\nLa cantidad solicitada es mayor al stock restante, quedan " + Integer.toString(cantidadRest) + " en stock del producto seleccionado." );
+                            }
+                            
+                        } catch (SQLException e) {
+                            System.out.println(e);
+                        }
+                        break;
+                    
+                    case 2:
+                        try {
+                            conexion.rollback(puntoSeguro);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        break;
+                    
+                    case 3:
+                        try {
+                            sentencia.close();
+                            conexion.rollback();
+                            opcion = 4;
+                        } catch ( Exception e ){
+                            e.printStackTrace();
+                        }
+                        break;
 
-                case 4:
-                    try {
-                        sentencia.close();
-                        conexion.commit();
-                    } catch ( Exception e ){
-                        e.printStackTrace();
-                    }
-                    break;
-                default:
-                    System.out.println("\nOpción no válida, por favor introduzca una de las opciones del menú.");
-                    break;
+                    case 4:
+                        try {
+                            sentencia.close();
+                            conexion.commit();
+                        } catch ( Exception e ){
+                            e.printStackTrace();
+                        }
+                        break;
+                    default:
+                        System.out.println("\nOpción no válida, por favor introduzca una de las opciones del menú.");
+                        break;
+                }
             }
-        }
         }catch( Exception e ){
             e.printStackTrace();
         }
@@ -207,21 +258,21 @@ public class BaseDatos {
     }
 
     public void MostrarMenuPrincipal(){
-        System.out.println("\t********MENU********\n");
+        System.out.println("\n\t********MENU********");
         System.out.println("1. Borrado y creación de tablas e inserción de datos en la tabla Stock.");
         System.out.println("2. Dar de alta nuevo pedido.");
         System.out.println("3. Mostrar el contenido de las tablas.");
         System.out.println("4. Salir del programa y cerrar la conexión a la BD.");
-        System.out.println("\t**********************");
+        System.out.println("\t**********************\n");
     }
     
     private void MostrarMenuDarDeAlta(){
-        System.out.println("\t******** NUEVO PEDIDO ********\n");
+        System.out.println("\t******** NUEVO PEDIDO ********");
         System.out.println("1. Añadir detalle de producto.");
         System.out.println("2. Eliminar detalle de producto.");
         System.out.println("3. Eliminar pedido (vuelve a Menú Principal)");
         System.out.println("4. Finalizar y guardar pedido");
-        System.out.println("\t********************************");
+        System.out.println("\t********************************\n");
     }
     
     Connection getConnection(){
