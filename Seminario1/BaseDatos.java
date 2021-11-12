@@ -21,27 +21,11 @@ public class BaseDatos {
 
             //Obtiene la conexion
             conexion = DriverManager.getConnection( url, usuario, usuario );
+            conexion.setAutoCommit(false);
         }catch( Exception e ){
             e.printStackTrace();
         }
     }
-
-    boolean TableExist() {
-        boolean res = false;
-        try{
-        Statement sentencia = conexion.createStatement();
-        ResultSet resultado = sentencia.executeQuery("SELECT * FROM *");
-        
-        if (resultado.getFetchSize() == 0)
-            res  = false;
-        else
-            res = true;
-        }catch( Exception e ){
-            e.printStackTrace();
-        }
-        return res;
-    }
-
 
     void cerrarConexion() {
         try{
@@ -61,7 +45,7 @@ public class BaseDatos {
             consulta = "DROP TABLE Detalle_Pedido";
             stmt  = conexion.createStatement();
             stmt.executeUpdate(consulta);
-            System.out.println("Tabla Detalle_Pedido dropeada");
+            System.out.println("Tabla Detalle_Pedido eliminada");
 
         } catch(Exception e){
             System.out.println("La tabla Detalle_Pedido no existia");
@@ -189,6 +173,7 @@ public class BaseDatos {
         
     }
     
+    //Daba muchos errores con la fecha, lo hemos hecho rafa y alberto de otra forma durante las clases de hoy
     // void darDeAlta(int Cpedido, int Ccliente, String fechaPedido) {
     //     try{
     //         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
@@ -271,7 +256,6 @@ public class BaseDatos {
             sentencia.executeQuery( "INSERT INTO PEDIDO VALUES (" + Integer.toString(Cpedido) + ", " + Integer.toString(Ccliente) + ", " + "to_Date('" + fechaPedido + "', 'dd/mm/yyyy'))" );
             int opcion = 0;
             Scanner scanner = new Scanner(System.in);
-            conexion.setAutoCommit(false);
             Savepoint puntoSeguro = conexion.setSavepoint();        //Pedido insertado
             while (opcion != 4) {
                 MostrarMenuDarDeAlta();

@@ -23,48 +23,53 @@ public class main {
         }
 
         while (opcionMenu != 4) {
-            Savepoint opcion3 = bd.getConnection().setSavepoint(); 
-            bd.MostrarMenuPrincipal();
-            opcionMenu = scanner.nextInt();
+            try{
+                Savepoint opcion3 = bd.getConnection().setSavepoint();
+            
+                bd.MostrarMenuPrincipal();
+                opcionMenu = scanner.nextInt();
 
-            switch (opcionMenu) {
+                switch (opcionMenu) {
 
-                case 1:
-                    bd.eliminarTablas();
+                    case 1:
+                        bd.eliminarTablas();
 
-                    try{
-                        Thread.sleep(2000);
-                    }catch(InterruptedException e ) {
-                    }
+                        try{
+                            Thread.sleep(2000);
+                        }catch(InterruptedException e ) {
+                        }
 
-                    System.out.println("\n\n");
-                    bd.crearTablas();
-                    break;
+                        System.out.println("\n\n");
+                        bd.crearTablas();
+                        break;
 
-                case 2:
-                    bd.getConnection();
-                    System.out.println("Introduzca los datos del pedido: ");
-                    System.out.println("Codigo del pedido: ");
-                    int Cpedido = scanner.nextInt();
-                    System.out.println("Codigo del cliente: ");
-                    int Ccliente = scanner.nextInt();
-                    System.out.println("Fecha del pedido (dd/mm/yyyy): ");
-                    scanner.nextLine();
-                    String fecha = scanner.nextLine();
+                    case 2:
+                        bd.getConnection();
+                        System.out.println("Introduzca los datos del pedido: ");
+                        System.out.println("Codigo del pedido: ");
+                        int Cpedido = scanner.nextInt();
+                        System.out.println("Codigo del cliente: ");
+                        int Ccliente = scanner.nextInt();
+                        System.out.println("Fecha del pedido (dd/mm/yyyy): ");
+                        scanner.nextLine();
+                        String fecha = scanner.nextLine();
+                        
+                        bd.darDeAlta(Cpedido, Ccliente, fecha, opcion3);
                     
-                    bd.darDeAlta(Cpedido, Ccliente, fecha, opcion3);
-                
-                    break;
-                case 3:
-                    System.out.println("\n");
+                        break;
+                    case 3:
+                        System.out.println("\n");
 
-                    bd.mostrarTablas();
-                    break;
-                case 4:
-                    bd.cerrarConexion();
-                    break;
-                default:
-                    System.out.println("\nOpción no válida, por favor seleccione una de las opciones disponibles");
+                        bd.mostrarTablas();
+                        break;
+                    case 4:
+                        bd.cerrarConexion();
+                        break;
+                    default:
+                        System.out.println("\nOpción no válida, por favor seleccione una de las opciones disponibles");
+                }
+            } catch( Exception e ){
+                e.printStackTrace();
             }
         }
     } 
