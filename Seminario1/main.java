@@ -54,6 +54,7 @@ public class main {
                 
                     break;
                 case 3:
+                    System.out.println("\n");
                     bd.mostrarTablas();
                     break;
                 case 4:

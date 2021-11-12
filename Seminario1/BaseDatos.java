@@ -158,10 +158,13 @@ public class BaseDatos {
     }
     void mostrarTablas() {
         try{
-            Statement sentencia = conexion.createStatement();
-            ResultSet resultado_Stock = sentencia.executeQuery( "SELECT * FROM Stock" );
-            ResultSet resultado_Pedido = sentencia.executeQuery( "SELECT * FROM Pedido" );
-            ResultSet resultado_Detalle_Pedido = sentencia.executeQuery( "SELECT * FROM Detalle-Pedido" );
+            Statement sentencia_Stock = conexion.createStatement();
+            Statement sentencia_Pedido = conexion.createStatement();
+            Statement sentencia_Detalle_Pedido = conexion.createStatement();
+
+            ResultSet resultado_Stock = sentencia_Stock.executeQuery( "SELECT * FROM Stock" );
+            ResultSet resultado_Pedido = sentencia_Pedido.executeQuery( "SELECT * FROM Pedido" );
+            ResultSet resultado_Detalle_Pedido = sentencia_Detalle_Pedido.executeQuery( "SELECT * FROM Detalle_Pedido" );
             while ( resultado_Stock.next() )
                 {
                     System.out.println ( resultado_Stock.getInt( 1 ) + "\t" + resultado_Stock.getInt( 2 ) );
@@ -174,7 +177,9 @@ public class BaseDatos {
                 {
                     System.out.println ( resultado_Detalle_Pedido.getInt( 1 ) + "\t" + resultado_Detalle_Pedido.getInt( 2 ) );
                 }
-            sentencia.close();
+            sentencia_Stock.close();
+            sentencia_Pedido.close();
+            sentencia_Detalle_Pedido.close();
         }catch( Exception e ){
             e.printStackTrace();
         }
