@@ -34,11 +34,12 @@ public class BaseDatos {
             e.printStackTrace();
         }
     }
+
     void eliminarTablas(){
         String consulta ="";
         Statement stmt;
         try{
-            consulta = "DELETE Detalle_pedido";
+            consulta = "DELETE Detalle_Pedido";
             stmt  = conexion.createStatement();
             stmt.executeUpdate(consulta);
 
@@ -62,7 +63,7 @@ public class BaseDatos {
             System.out.println("Tabla Pedido eliminada");
 
         } catch(Exception e){
-            System.out.println("La tabla Pedido no exxistía");
+            System.out.println("La tabla Pedido no existía");
         }
 
         try{
@@ -130,12 +131,13 @@ public class BaseDatos {
             System.out.println("Problema creando Pedido \n " + e);
         }
         
-        //Crear tabla Detalle-Pedido
+        //Crear tabla Detalle_Pedido
         try (Statement stmt = conexion.createStatement()){
             stmt.executeUpdate(formatoDetallePedido);
-            System.out.println("Tabla Detalle-Pedido creada.");
+            System.out.println("Tabla Detalle_Pedido creada.");
+            stmt.execute("COMMIT");
         } catch (SQLException e) {
-            System.out.println("Problema creando Detalle-Pedido \n " + e);
+            System.out.println("Problema creando Detalle_Pedido \n " + e);
         }
         
         
@@ -173,87 +175,11 @@ public class BaseDatos {
         
     }
     
-    //Daba muchos errores con la fecha, lo hemos hecho rafa y alberto de otra forma durante las clases de hoy
-    // void darDeAlta(int Cpedido, int Ccliente, String fechaPedido) {
-    //     try{
-    //         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
-    //         Statement sentencia = conexion.createStatement();
-    //         sentencia.executeQuery( "INSERT INTO PEDIDO VALUES (" + Integer.toString(Cpedido) + ", " + Integer.toString(Ccliente) + ", " + formatter.format(fechaPedido) + ")" );
-    //         int opcion = 0;
-    //         Scanner scanner = new Scanner(System.in);
-    //         Savepoint puntoSeguro = conexion.setSavepoint("Pedido insertado");
-    //         while (opcion != 4) {
-    //             MostrarMenuDarDeAlta();
-    //             opcion = scanner.nextInt();
 
-    //             switch (opcion) {
-    //                 case 1:
-    //                     System.out.println("Introduzca el codigo del articulo: ");
-    //                     int codigoArticulo = scanner.nextInt();
-    //                     System.out.println("Introduzca la cantidad: ");
-    //                     int cantidadArticulo = scanner.nextInt();
-                        
-    //                     try (Statement stmt = conexion.createStatement()){
-    //                         // ResultSet cantidadRes = stmt.executeQuery("SELECT CANTIDAD FROM STOCK WHERE Cproducto=" + Integer.toString(codigoArticulo));
-    //                         int cantidadRest =0;
-    //                         // while ( cantidadRes.next() )
-    //                         //     {
-    //                         //        cantidadRest++;
-    //                         //     }
-    //                         if(cantidadRest >= cantidadArticulo){
-    //                             cantidadRest -= cantidadArticulo;
-    //                             stmt.executeUpdate("insert into Detalle-Pedido values(" + Integer.toString(Cpedido) + ", " + Integer.toString(codigoArticulo) + ", " + Integer.toString(cantidadArticulo) + ")");
-    //                             stmt.executeUpdate("update Stock set Cantidad=" + Integer.toString(cantidadRest) + " WHERE Cproducto=" + Integer.toString(codigoArticulo));         
-    //                         } else {
-    //                             System.out.println("\nLa cantidad solicitada es mayor al stock restante, quedan " + Integer.toString(cantidadRest) + " en stock del producto seleccionado." );
-    //                         }
-                            
-    //                     } catch (SQLException e) {
-    //                         System.out.println(e);
-    //                     }
-    //                     break;
-                    
-    //                 case 2:
-    //                     try {
-    //                         conexion.rollback(puntoSeguro);
-    //                     } catch (Exception e) {
-    //                         e.printStackTrace();
-    //                     }
-    //                     break;
-                    
-    //                 case 3:
-    //                     try {
-    //                         sentencia.close();
-    //                         conexion.rollback();
-    //                         opcion = 4;
-    //                     } catch ( Exception e ){
-    //                         e.printStackTrace();
-    //                     }
-    //                     break;
-
-    //                 case 4:
-    //                     try {
-    //                         sentencia.close();
-    //                         conexion.commit();
-    //                     } catch ( Exception e ){
-    //                         e.printStackTrace();
-    //                     }
-    //                     break;
-    //                 default:
-    //                     System.out.println("\nOpción no válida, por favor introduzca una de las opciones del menú.");
-    //                     break;
-    //             }
-    //         }
-    //     }catch( Exception e ){
-    //         e.printStackTrace();
-    //     }
-        
-    // }
-
-    void darDeAlta(int Cpedido, int Ccliente, String fechaPedido, Savepoint opcion3) {
+    void darDeAlta(int Cpedido, int Ccliente) {
         try{
             Statement sentencia = conexion.createStatement();
-            sentencia.executeQuery( "INSERT INTO PEDIDO VALUES (" + Integer.toString(Cpedido) + ", " + Integer.toString(Ccliente) + ", " + "to_Date('" + fechaPedido + "', 'dd/mm/yyyy'))" );
+            sentencia.executeQuery( "INSERT INTO PEDIDO VALUES (" + Integer.toString(Cpedido) + ", " + Integer.toString(Ccliente) + ", " + "SYSDATE)" );
             int opcion = 0;
             Scanner scanner = new Scanner(System.in);
             Savepoint puntoSeguro = conexion.setSavepoint();        //Pedido insertado
@@ -302,7 +228,7 @@ public class BaseDatos {
                     case 3:
                         try {
                             sentencia.close();
-                            conexion.rollback(opcion3);
+                            conexion.rollback();
                             opcion = 4;
                             mostrarTablas();
                         } catch ( Exception e ){
