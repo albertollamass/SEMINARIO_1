@@ -3,9 +3,6 @@ import java.util.Date;
 import java.text.SimpleDateFormat;
 import java.util.Scanner;
 
-//Para compilar
-//javac main.java BaseDatos.java
-//java -cp ojdbc8.jar:. main
 
 public class main {
 
@@ -23,9 +20,7 @@ public class main {
         }
 
         while (opcionMenu != 4) {
-            try{
-                // Savepoint opcion3 = bd.getConnection().setSavepoint();
-            
+            try{            
                 bd.MostrarMenuPrincipal();
                 opcionMenu = scanner.nextInt();
 
@@ -72,6 +67,3 @@ public class main {
         }
     } 
 }
-
-
-//https://gist.github.com/jujogracu/3063672
