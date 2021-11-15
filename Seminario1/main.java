@@ -3,7 +3,6 @@ import java.util.Date;
 import java.text.SimpleDateFormat;
 import java.util.Scanner;
 
-
 public class main {
 
     public static void main(String args[]){
@@ -47,12 +46,17 @@ public class main {
                         System.out.println("Codigo del cliente: ");
                         int Ccliente = scanner.nextInt();
 
+                        // Si deseamos introducir la fecha manualmente descomentamos las siguientes lineas y comentamos la linea 56 y
+                        // descomentamos lineas en BaseDatos.java
+                        // System.out.println("Introduzca la fecha del pedido (dd/mm/yyyy): ");
+                        // String fecha = scanner.nextLine();
+                        // scanner.nextLine();
+                        // bd.darDeAlta(Cpedido, Ccliente, String fecha);
+
                         bd.darDeAlta(Cpedido, Ccliente);
-                    
                         break;
                     case 3:
                         System.out.println("\n");
-
                         bd.mostrarTablas();
                         break;
                     case 4:
@@ -67,3 +71,5 @@ public class main {
         }
     } 
 }
+
+

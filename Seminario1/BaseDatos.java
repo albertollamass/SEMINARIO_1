@@ -152,19 +152,22 @@ public class BaseDatos {
             ResultSet resultado_Pedido = sentencia_Pedido.executeQuery( "SELECT * FROM Pedido" );
             ResultSet resultado_Detalle_Pedido = sentencia_Detalle_Pedido.executeQuery( "SELECT * FROM Detalle_Pedido" );
             System.out.println ( "Mostrando la tabla Stock \n" );
+            System.out.println("Cproducto\tCantidad");
             while ( resultado_Stock.next() )
                 {
-                    System.out.println ( resultado_Stock.getInt( 1 ) + "\t" + resultado_Stock.getInt( 2 ) );
+                    System.out.println ( resultado_Stock.getInt( 1 ) + "\t\t" + resultado_Stock.getInt( 2 ) );
                 }
             System.out.println ( "\nMostrando la tabla Pedido \n" );
+            System.out.println("Cpedido\t\tCcliente\tFecha-Pedido");
             while ( resultado_Pedido.next() )
                 {
-                    System.out.println ( resultado_Pedido.getInt( 1 ) + "\t" + resultado_Pedido.getInt( 2 ) + "\t" + resultado_Pedido.getString( 3 ) );
+                    System.out.println ( resultado_Pedido.getInt( 1 ) + "\t\t" + resultado_Pedido.getInt( 2 ) + "\t\t" + resultado_Pedido.getString( 3 ) );
                 }    
             System.out.println ( "\nMostrando la tabla Detalle_Pedido \n" );
+            System.out.println("Cpedido\t\tCproducto\tCantidad");
             while ( resultado_Detalle_Pedido.next() )
                 {
-                    System.out.println ( resultado_Detalle_Pedido.getInt( 1 ) + "\t" + resultado_Detalle_Pedido.getInt( 2 ) + "\t" + resultado_Detalle_Pedido.getInt( 3 ));
+                    System.out.println ( resultado_Detalle_Pedido.getInt( 1 ) + "\t\t" + resultado_Detalle_Pedido.getInt( 2 ) + "\t\t" + resultado_Detalle_Pedido.getInt( 3 ));
                 }
             sentencia_Stock.close();
             sentencia_Pedido.close();
@@ -175,10 +178,13 @@ public class BaseDatos {
         
     }
     
-
+    //Si queremos modificar la fecha manualmente descomentamos lo siguiente y comentamos la linea 179
+    // void darDeAlta (int Cpedido, int Ccliente, String fecha){
     void darDeAlta(int Cpedido, int Ccliente) {
         try{
             Statement sentencia = conexion.createStatement();
+            //Para introducir fecha manualmente descomentar siguiente linea y comentar la linea 185
+            // sentencia.executeQuery( "INSERT INTO PEDIDO VALUES (" + Integer.toString(Cpedido) + ", " + Integer.toString(Ccliente) + ", " + "TO_DATE('" + fecha + "', 'dd/mm/yyyy'), )" );
             sentencia.executeQuery( "INSERT INTO PEDIDO VALUES (" + Integer.toString(Cpedido) + ", " + Integer.toString(Ccliente) + ", " + "SYSDATE)" );
             int opcion = 0;
             Scanner scanner = new Scanner(System.in);
@@ -239,7 +245,7 @@ public class BaseDatos {
                     case 4:
                         try {
                             sentencia.close();
-                            conexion.commit();
+                            conexion.commit(); //COMMIT
                         } catch ( Exception e ){
                             e.printStackTrace();
                         }
